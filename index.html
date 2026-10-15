@@ -1,1201 +1,893 @@
 <!DOCTYPE html>
-<html lang="en" class="dark scroll-smooth">
+<html lang="en" class="h-full w-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AETHERIA // Next-Gen AI Scrollytelling Experience</title>
-    
-    <!-- Google Fonts -->
+    <title>KINETIX — Generative Audiovisual Playground</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for clean minimalist iconography -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Space Grotesk & Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&family=Space+Grotesk:wght@300;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            bg: '#05060f',
-                            card: 'rgba(15, 20, 35, 0.6)',
-                            border: 'rgba(255, 255, 255, 0.08)',
-                            cyan: '#00f3ff',
-                            purple: '#b026ff',
-                            amber: '#ffaa00',
-                            pink: '#ff2a85'
-                        }
-                    },
-                    fontFamily: {
-                        sans: ['Outfit', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace'],
-                        display: ['Space Grotesk', 'sans-serif']
-                    },
-                    animation: {
-                        'pulse-glow': 'pulseGlow 4s infinite alternate',
-                        'float': 'float 6s ease-in-out infinite',
-                    },
-                    keyframes: {
-                        pulseGlow: {
-                            '0%': { boxShadow: '0 0 15px rgba(0,243,255,0.2)' },
-                            '100%': { boxShadow: '0 0 35px rgba(176,38,255,0.5)' }
-                        },
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0px)' },
-                            '50%': { transform: 'translateY(-12px)' }
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    
-    <!-- Libraries -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&family=Space+Grotesk:wght@400;700;900&display=swap" rel="stylesheet">
 
     <style>
-        /* Custom Custom Scrollbar & Utility Styles */
+        /* Custom Fonts & Styling Core */
+        body {
+            font-family: 'Space Grotesk', 'Inter', sans-serif;
+            overflow-x: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* Dynamic Morphing Fluid Gradient Background */
+        .gradient-bg {
+            background: linear-gradient(-45deg, var(--c1), var(--c2), var(--c3), var(--c4));
+            background-size: 400% 400%;
+            animation: gradientMorph 15s ease infinite;
+            transition: --c1 1.5s ease, --c2 1.5s ease, --c3 1.5s ease, --c4 1.5s ease;
+        }
+
+        @keyframes gradientMorph {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Color Theme CSS Variable Declarations */
+        :root {
+            --c1: #ff007f;
+            --c2: #7928ca;
+            --c3: #00dfd8;
+            --c4: #ff4500;
+            --accent: #00ffff;
+            --glass-bg: rgba(15, 15, 25, 0.45);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --text-color: #ffffff;
+        }
+
+        /* Glassmorphism Styling */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .glass-button {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .glass-button:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.6);
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        .glass-button:active {
+            transform: translateY(1px) scale(0.98);
+        }
+
+        /* 3D Tilt Card Container */
+        .tilt-card {
+            transform-style: preserve-3d;
+            perspective: 1000px;
+            transition: transform 0.1s ease-out;
+        }
+
+        /* Custom Scrollbar for sleek appearance */
         ::-webkit-scrollbar {
             width: 6px;
         }
         ::-webkit-scrollbar-track {
-            background: #05060f;
+            background: rgba(0,0,0,0.1);
         }
         ::-webkit-scrollbar-thumb {
-            background: rgba(0, 243, 255, 0.3);
+            background: rgba(255,255,255,0.3);
             border-radius: 3px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: rgba(0, 243, 255, 0.6);
+            background: rgba(255,255,255,0.6);
         }
 
-        .glass-panel {
-            background: rgba(12, 16, 28, 0.55);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        /* Custom Input Range Sliders */
+        input[type=range] {
+            -webkit-appearance: none;
+            background: rgba(255, 255, 255, 0.2);
+            height: 6px;
+            border-radius: 3px;
+            outline: none;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #ffffff;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255,255,255,0.8);
+            transition: transform 0.1s;
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.3);
         }
 
-        .glass-card {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.07);
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .glass-card:hover {
-            border-color: rgba(0, 243, 255, 0.4);
-            transform: translateY(-4px) scale(1.01);
-            box-shadow: 0 12px 30px -10px rgba(0, 243, 255, 0.25);
-        }
-
-        .text-gradient-cyan {
-            background: linear-gradient(135deg, #ffffff 0%, #00f3ff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .text-gradient-purple {
-            background: linear-gradient(135deg, #00f3ff 0%, #b026ff 50%, #ff2a85 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .text-gradient-gold {
-            background: linear-gradient(135deg, #ffffff 0%, #ffaa00 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        /* WebGL Background Canvas */
-        #webgl-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 0;
+        /* Kinetic Text Canvas Overlay Fix */
+        .no-pointer {
             pointer-events: none;
-        }
-
-        /* Canvas Particle Sandbox */
-        #sandbox-canvas {
-            touch-action: none;
         }
     </style>
 </head>
-<body class="bg-brand-bg text-slate-100 font-sans overflow-x-hidden selection:bg-brand-cyan selection:text-black">
+<body class="h-full w-full gradient-bg text-white overflow-hidden relative select-none">
 
-    <!-- Scroll Progress Indicator -->
-    <div id="scroll-progress" class="fixed top-0 left-0 h-1 bg-gradient-to-r from-brand-cyan via-brand-purple to-brand-amber z-50 transition-all duration-75 w-0"></div>
+    <!-- Background Interactive Particle & Visual Canvas -->
+    <canvas id="bgCanvas" class="fixed inset-0 w-full h-full z-0 pointer-events-auto"></canvas>
 
-    <!-- WebGL Background Canvas -->
-    <div id="webgl-container"></div>
+    <!-- Interactive Visual shockwave canvas layer -->
+    <canvas id="fxCanvas" class="fixed inset-0 w-full h-full z-10 pointer-events-none"></canvas>
 
-    <!-- Top Navigation Header -->
-    <header class="fixed top-0 left-0 w-full z-40 px-6 py-4 transition-all duration-300" id="navbar">
-        <div class="max-w-7xl mx-auto flex items-center justify-between glass-panel rounded-2xl px-6 py-3">
+    <!-- Main UI Layout Frame -->
+    <div class="relative z-20 flex flex-col h-full w-full justify-between p-4 md:p-8 pointer-events-none">
+        
+        <!-- TOP NAVIGATION BAR -->
+        <header class="flex justify-between items-center w-full max-w-7xl mx-auto pointer-events-auto">
+            <!-- Brand Minimalist Logo -->
             <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-brand-cyan to-brand-purple flex items-center justify-center font-display font-black text-black text-lg">
-                    A
+                <div class="w-10 h-10 rounded-xl bg-white text-black font-black flex items-center justify-center text-xl tracking-tighter shadow-xl">
+                    KX
                 </div>
-                <span class="font-display font-bold text-xl tracking-wider text-gradient-cyan">AETHERIA</span>
+                <div>
+                    <h1 class="text-xl md:text-2xl font-black tracking-widest uppercase leading-none">KINETIX</h1>
+                    <p class="text-xs text-white/70 font-mono tracking-widest uppercase">Audiovisual Playground</p>
+                </div>
             </div>
 
-            <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
-                <a href="#hero" class="hover:text-brand-cyan transition-colors" onclick="playAudio('hover')">Overview</a>
-                <a href="#genesis" class="hover:text-brand-cyan transition-colors" onclick="playAudio('hover')">Neural Genesis</a>
-                <a href="#ai-center" class="hover:text-brand-cyan transition-colors" onclick="playAudio('hover')">AI Core</a>
-                <a href="#tech-lab" class="hover:text-brand-cyan transition-colors" onclick="playAudio('hover')">Physics Sandbox</a>
-                <a href="#spec-matrix" class="hover:text-brand-cyan transition-colors" onclick="playAudio('hover')">Matrix Spec</a>
-            </nav>
-
-            <div class="flex items-center gap-4">
-                <!-- Audio Synthesizer Toggle Button -->
-                <button id="audio-toggle" onclick="toggleAudio()" class="px-3 py-1.5 rounded-xl glass-card flex items-center gap-2 text-xs font-mono text-brand-cyan hover:bg-brand-cyan/10 transition-all" title="Toggle Web Audio Sound Synthesis">
-                    <i class="fa-solid fa-volume-xmark" id="audio-icon"></i>
-                    <span id="audio-label" class="hidden sm:inline">AUDIO: OFF</span>
+            <!-- Mode Selector Tabs -->
+            <div class="glass-panel rounded-full p-1.5 flex items-center gap-1 shadow-2xl">
+                <button onclick="switchMode('synth')" id="tab-synth" class="tab-btn active px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all bg-white text-black">
+                    <i class="fa-solid fa-wand-magic-sparkles mr-1.5"></i>Sandbox
                 </button>
-
-                <!-- Full App Deployment Guide Trigger -->
-                <button onclick="toggleDeployModal(true)" class="px-4 py-2 rounded-xl bg-gradient-to-r from-brand-cyan to-brand-purple text-black font-semibold text-xs tracking-wider uppercase hover:brightness-125 transition-all shadow-lg shadow-brand-cyan/20">
-                    <i class="fa-solid fa-rocket mr-1.5"></i> Launch App Guide
+                <button onclick="switchMode('typography')" id="tab-typography" class="tab-btn px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider text-white/80 hover:text-white transition-all">
+                    <i class="fa-solid fa-font mr-1.5"></i>Kinetic Text
+                </button>
+                <button onclick="switchMode('matrix')" id="tab-matrix" class="tab-btn px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider text-white/80 hover:text-white transition-all">
+                    <i class="fa-solid fa-grid-2 mr-1.5"></i>Sound Matrix
+                </button>
+                <button onclick="switchMode('gravity')" id="tab-gravity" class="tab-btn px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider text-white/80 hover:text-white transition-all">
+                    <i class="fa-solid fa-atom mr-1.5"></i>Gravity Void
                 </button>
             </div>
-        </div>
-    </header>
 
-    <!-- MAIN SCROLLEXPLORATION WRAPPER -->
-    <main class="relative z-10">
-
-        <!-- ================= HERO SECTION ================= -->
-        <section id="hero" class="min-h-screen flex items-center justify-center relative px-6 pt-24 pb-12">
-            <div class="max-w-5xl mx-auto text-center space-y-8 hero-content">
-                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card text-brand-cyan text-xs font-mono tracking-widest uppercase border border-brand-cyan/30 animate-pulse">
-                    <span class="w-2 h-2 rounded-full bg-brand-cyan animate-ping"></span>
-                    Interactive WebGL Scrollytelling v2.5
-                </div>
-
-                <h1 class="text-5xl md:text-7xl lg:text-8xl font-display font-extrabold tracking-tight leading-none">
-                    ENGINEERING THE <br />
-                    <span class="text-gradient-purple">HYPER-DIMENSIONAL</span> COGNITION
-                </h1>
-
-                <p class="max-w-2xl mx-auto text-slate-400 text-lg md:text-xl font-light leading-relaxed">
-                    Scroll down to unfold an interactive narrative journey exploring next-generation neural architectures, dynamic physics, and generative intelligence.
-                </p>
-
-                <div class="pt-6 flex flex-wrap justify-center gap-4">
-                    <a href="#genesis" class="px-8 py-4 rounded-xl bg-slate-100 text-black font-bold text-sm tracking-wider uppercase hover:bg-brand-cyan transition-all transform hover:-translate-y-1 shadow-xl">
-                        Begin Journey <i class="fa-solid fa-arrow-down ml-2"></i>
-                    </a>
-                    <button onclick="triggerOrbPulse()" class="px-8 py-4 rounded-xl glass-panel hover:bg-white/10 text-slate-200 font-medium text-sm tracking-wider uppercase border border-white/10 transition-all">
-                        Pulse Core Orb
-                    </button>
-                </div>
-
-                <!-- Scroll Indicator Pill -->
-                <div class="pt-16 flex flex-col items-center opacity-60 hover:opacity-100 transition-opacity">
-                    <span class="text-xs font-mono text-slate-400 uppercase tracking-widest mb-2">Scroll To Explore</span>
-                    <div class="w-5 h-9 rounded-full border-2 border-slate-500 flex justify-center p-1">
-                        <div class="w-1.5 h-3 bg-brand-cyan rounded-full animate-bounce"></div>
-                    </div>
-                </div>
+            <!-- Audio Master Controls Header Toggle -->
+            <div class="flex items-center gap-3">
+                <button id="audioToggleBtn" onclick="toggleAudioEngine()" class="glass-button px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-2 border-emerald-400/50">
+                    <span id="audioStatusDot" class="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span>
+                    <span id="audioBtnText">Audio Off</span>
+                </button>
             </div>
-        </section>
+        </header>
 
-        <!-- ================= CHAPTER 1: THE AI NEURAL GENESIS ================= -->
-        <section id="genesis" class="min-h-screen relative py-32 px-6 flex items-center">
-            <div class="max-w-6xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-                
-                <!-- Sticky Left Text Story -->
-                <div class="lg:col-span-5 space-y-6 genesis-text">
-                    <div class="text-brand-cyan font-mono text-xs uppercase tracking-widest">CHAPTER 01 // ARCHITECTURE</div>
-                    <h2 class="text-4xl md:text-5xl font-display font-bold leading-tight">
-                        Deep Neural <span class="text-gradient-cyan">Genesis</span> Layer
-                    </h2>
-                    <p class="text-slate-400 leading-relaxed font-light">
-                        Observe the real-time node activation pipeline as high-dimensional token embeddings pass through multi-head self-attention mechanisms and sparse mixture-of-experts blocks.
-                    </p>
-
-                    <div class="space-y-4 pt-4">
-                        <div class="glass-card p-4 rounded-xl border-l-4 border-brand-cyan flex items-start gap-4">
-                            <i class="fa-solid fa-microchip text-brand-cyan text-xl mt-1"></i>
-                            <div>
-                                <h4 class="font-bold text-sm text-slate-200">1. Raw Tensor Tokenization</h4>
-                                <p class="text-xs text-slate-400">Context windows decomposed into dense vector spaces at 120,000 tokens/sec.</p>
-                            </div>
-                        </div>
-
-                        <div class="glass-card p-4 rounded-xl border-l-4 border-brand-purple flex items-start gap-4">
-                            <i class="fa-solid fa-network-wired text-brand-purple text-xl mt-1"></i>
-                            <div>
-                                <h4 class="font-bold text-sm text-slate-200">2. Transformer Attention Routing</h4>
-                                <p class="text-xs text-slate-400">Multi-head attention maps query-key-value projections with sub-millisecond latent decay.</p>
-                            </div>
-                        </div>
-
-                        <div class="glass-card p-4 rounded-xl border-l-4 border-brand-amber flex items-start gap-4">
-                            <i class="fa-solid fa-bolt text-brand-amber text-xl mt-1"></i>
-                            <div>
-                                <h4 class="font-bold text-sm text-slate-200">3. Generative Output Synthesis</h4>
-                                <p class="text-xs text-slate-400">Probability distribution decoding generates rich multimodal content continuously.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Right Interactive Node Pipeline Diagram -->
-                <div class="lg:col-span-7 glass-panel p-8 rounded-3xl relative overflow-hidden genesis-diagram">
-                    <div class="absolute -top-10 -right-10 w-40 h-40 bg-brand-cyan/10 rounded-full blur-3xl pointer-events-none"></div>
-                    
-                    <div class="flex justify-between items-center mb-8 border-b border-white/10 pb-4">
-                        <span class="font-mono text-xs text-slate-400">LIVE PIPELINE SIMULATOR</span>
-                        <div class="flex gap-2">
-                            <span class="w-3 h-3 rounded-full bg-red-500/80"></span>
-                            <span class="w-3 h-3 rounded-full bg-yellow-500/80"></span>
-                            <span class="w-3 h-3 rounded-full bg-green-500/80"></span>
-                        </div>
-                    </div>
-
-                    <!-- Pipeline SVG Canvas Diagram -->
-                    <div class="relative min-h-[320px] flex items-center justify-between">
-                        <svg class="absolute inset-0 w-full h-full pointer-events-none" id="neural-svg">
-                            <path id="line-1" d="M 80 160 Q 200 60 300 160" stroke="rgba(0,243,255,0.4)" stroke-width="2" fill="none" stroke-dasharray="6,6" />
-                            <path id="line-2" d="M 300 160 Q 400 260 520 160" stroke="rgba(176,38,255,0.4)" stroke-width="2" fill="none" stroke-dasharray="6,6" />
-                        </svg>
-
-                        <!-- Node 1 -->
-                        <div class="relative z-10 text-center flex flex-col items-center group cursor-pointer" onclick="activateNode(1)">
-                            <div class="w-20 h-20 rounded-2xl glass-card border border-brand-cyan/50 flex items-center justify-center text-brand-cyan text-2xl group-hover:scale-110 transition-transform shadow-lg shadow-brand-cyan/20">
-                                <i class="fa-solid fa-database"></i>
-                            </div>
-                            <span class="mt-3 font-mono text-xs font-bold text-slate-300">INPUT</span>
-                            <span class="text-[10px] text-slate-500 font-mono">1024 Dim</span>
-                        </div>
-
-                        <!-- Node 2 -->
-                        <div class="relative z-10 text-center flex flex-col items-center group cursor-pointer" onclick="activateNode(2)">
-                            <div class="w-24 h-24 rounded-full glass-card border-2 border-brand-purple flex items-center justify-center text-brand-purple text-3xl group-hover:scale-110 transition-transform shadow-xl shadow-brand-purple/30 animate-pulse">
-                                <i class="fa-solid fa-brain"></i>
-                            </div>
-                            <span class="mt-3 font-mono text-xs font-bold text-slate-300">TRANSFORMER</span>
-                            <span class="text-[10px] text-brand-purple font-mono">96 Attention Heads</span>
-                        </div>
-
-                        <!-- Node 3 -->
-                        <div class="relative z-10 text-center flex flex-col items-center group cursor-pointer" onclick="activateNode(3)">
-                            <div class="w-20 h-20 rounded-2xl glass-card border border-brand-amber/50 flex items-center justify-center text-brand-amber text-2xl group-hover:scale-110 transition-transform shadow-lg shadow-brand-amber/20">
-                                <i class="fa-solid fa-wand-magic-sparkles"></i>
-                            </div>
-                            <span class="mt-3 font-mono text-xs font-bold text-slate-300">OUTPUT</span>
-                            <span class="text-[10px] text-slate-500 font-mono">Generative Stream</span>
-                        </div>
-                    </div>
-
-                    <!-- Live Realtime Pipeline Metrics Counter -->
-                    <div class="grid grid-cols-3 gap-4 mt-8 pt-6 border-t border-white/10 text-center">
-                        <div>
-                            <div class="font-mono text-2xl font-black text-brand-cyan" id="metric-latency">12.4ms</div>
-                            <div class="text-[11px] text-slate-400 font-mono uppercase">Inference Time</div>
-                        </div>
-                        <div>
-                            <div class="font-mono text-2xl font-black text-brand-purple" id="metric-tps">1,840</div>
-                            <div class="text-[11px] text-slate-400 font-mono uppercase">Tokens / Sec</div>
-                        </div>
-                        <div>
-                            <div class="font-mono text-2xl font-black text-brand-amber" id="metric-acc">99.82%</div>
-                            <div class="text-[11px] text-slate-400 font-mono uppercase">Accuracy Index</div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </section>
-
-        <!-- ================= CHAPTER 2: AI EXPERIENCE CENTER (GEMINI API INTEGRATION) ================= -->
-        <section id="ai-center" class="min-h-screen py-32 px-6 relative flex items-center">
-            <div class="max-w-6xl mx-auto w-full space-y-12">
-                
-                <div class="text-center max-w-3xl mx-auto space-y-4">
-                    <div class="text-brand-purple font-mono text-xs uppercase tracking-widest">CHAPTER 02 // REALTIME INTELLIGENCE</div>
-                    <h2 class="text-4xl md:text-6xl font-display font-bold">
-                        Interactive <span class="text-gradient-purple">AI Intelligence Engine</span>
-                    </h2>
-                    <p class="text-slate-400 font-light">
-                        Interact directly with the integrated Gemini AI API. Prompt the system to synthesize futuristic sci-fi visions, code architectural blueprints, or technical explanations in real time.
-                    </p>
-                </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                    
-                    <!-- Left Tech Badges Selector -->
-                    <div class="lg:col-span-4 space-y-4">
-                        <h3 class="text-sm font-mono text-slate-400 uppercase tracking-wider mb-2">Preset High-Tech Concept Engines</h3>
-
-                        <button onclick="runAiPreset('quantum')" class="w-full glass-card p-4 rounded-2xl text-left hover:border-brand-cyan transition-all flex items-center justify-between group">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-xl bg-brand-cyan/10 text-brand-cyan flex items-center justify-center font-bold">
-                                    <i class="fa-solid fa-atom"></i>
-                                </div>
-                                <div>
-                                    <div class="font-bold text-sm text-slate-200 group-hover:text-brand-cyan transition-colors">Quantum Neural Mesh</div>
-                                    <div class="text-xs text-slate-400">Sub-atomic probability processing</div>
-                                </div>
-                            </div>
-                            <i class="fa-solid fa-chevron-right text-xs text-slate-500 group-hover:translate-x-1 transition-transform"></i>
-                        </button>
-
-                        <button onclick="runAiPreset('audio')" class="w-full glass-card p-4 rounded-2xl text-left hover:border-brand-purple transition-all flex items-center justify-between group">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-xl bg-brand-purple/10 text-brand-purple flex items-center justify-center font-bold">
-                                    <i class="fa-solid fa-wave-square"></i>
-                                </div>
-                                <div>
-                                    <div class="font-bold text-sm text-slate-200 group-hover:text-brand-purple transition-colors">Neural Audio Synthesizer</div>
-                                    <div class="text-xs text-slate-400">Harmonic bio-frequency generation</div>
-                                </div>
-                            </div>
-                            <i class="fa-solid fa-chevron-right text-xs text-slate-500 group-hover:translate-x-1 transition-transform"></i>
-                        </button>
-
-                        <button onclick="runAiPreset('singularity')" class="w-full glass-card p-4 rounded-2xl text-left hover:border-brand-amber transition-all flex items-center justify-between group">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-xl bg-brand-amber/10 text-brand-amber flex items-center justify-center font-bold">
-                                    <i class="fa-solid fa-infinity"></i>
-                                </div>
-                                <div>
-                                    <div class="font-bold text-sm text-slate-200 group-hover:text-brand-amber transition-colors">Cybernetic Singularity</div>
-                                    <div class="text-xs text-slate-400">Year 2088 technological foresight</div>
-                                </div>
-                            </div>
-                            <i class="fa-solid fa-chevron-right text-xs text-slate-500 group-hover:translate-x-1 transition-transform"></i>
-                        </button>
-
-                        <div class="glass-panel p-5 rounded-2xl space-y-3">
-                            <label class="text-xs font-mono text-slate-400 uppercase block">API Key Configuration (Optional)</label>
-                            <input type="password" id="gemini-key-input" placeholder="Paste custom Gemini API key..." class="w-full bg-slate-900/80 border border-white/10 rounded-xl px-3 py-2 text-xs font-mono text-slate-200 focus:outline-none focus:border-brand-cyan">
-                            <p class="text-[10px] text-slate-500 leading-tight">If empty, Canvas automated key context or an embedded high-tech offline simulation fallback will be utilized seamlessly.</p>
-                        </div>
-                    </div>
-
-                    <!-- Right AI Terminal Studio Input/Output -->
-                    <div class="lg:col-span-8 glass-panel p-6 rounded-3xl space-y-4">
-                        <div class="flex justify-between items-center border-b border-white/10 pb-3">
-                            <div class="flex items-center gap-2">
-                                <span class="w-3 h-3 rounded-full bg-brand-cyan animate-ping"></span>
-                                <span class="font-mono text-xs font-bold text-slate-300">GEMINI PROMPT TERMINAL STUDIO</span>
-                            </div>
-                            <span class="text-[11px] font-mono text-brand-cyan bg-brand-cyan/10 px-2.5 py-1 rounded-full">Model: gemini-2.5-flash</span>
-                        </div>
-
-                        <!-- Prompt Input Field -->
-                        <div class="flex gap-2">
-                            <input type="text" id="ai-prompt-input" placeholder="Type a futuristic query or question for Gemini AI..." class="flex-1 bg-slate-950/80 border border-white/10 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-brand-cyan transition-all">
-                            <button onclick="executeAiQuery()" id="ai-submit-btn" class="px-6 py-3 bg-brand-cyan text-black font-bold text-xs uppercase tracking-wider rounded-xl hover:brightness-110 transition-all flex items-center gap-2 shadow-lg shadow-brand-cyan/20">
-                                <span>Synthesize</span> <i class="fa-solid fa-paper-plane"></i>
-                            </button>
-                        </div>
-
-                        <!-- Terminal Output Window -->
-                        <div class="bg-black/80 rounded-2xl p-5 border border-white/10 font-mono text-xs leading-relaxed min-h-[260px] max-h-[380px] overflow-y-auto relative text-slate-300" id="ai-terminal-output">
-                            <div class="text-slate-500 mb-2">// System initialized. Awaiting user neural prompt stream...</div>
-                            <div class="text-brand-cyan font-semibold">// Example: Click any concept preset on the left or type your prompt above to synthesize responses.</div>
-                        </div>
-                    </div>
-
-                </div>
-
-            </div>
-        </section>
-
-        <!-- ================= CHAPTER 3: INTERACTIVE TECH LAB (CANVAS SANDBOX) ================= -->
-        <section id="tech-lab" class="min-h-screen py-32 px-6 relative flex items-center">
-            <div class="max-w-6xl mx-auto w-full space-y-8">
-                
-                <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                    <div>
-                        <div class="text-brand-amber font-mono text-xs uppercase tracking-widest">CHAPTER 03 // PHYSICS SANDBOX</div>
-                        <h2 class="text-4xl md:text-5xl font-display font-bold">
-                            Interactive <span class="text-gradient-gold">Energy Forcefield</span>
-                        </h2>
-                        <p class="text-slate-400 font-light mt-2 max-w-xl">
-                            Drag your mouse or finger across the canvas grid to disrupt kinetic energy nodes. Adjust gravity, particle density, and molecular resonance parameters in real time.
-                        </p>
-                    </div>
-
-                    <!-- Sandbox Controls -->
-                    <div class="flex flex-wrap gap-3">
-                        <button onclick="setSandboxTheme('cyan')" class="px-3 py-1.5 rounded-lg text-xs font-mono glass-card hover:border-brand-cyan text-brand-cyan">Cyan Theme</button>
-                        <button onclick="setSandboxTheme('purple')" class="px-3 py-1.5 rounded-lg text-xs font-mono glass-card hover:border-brand-purple text-brand-purple">Purple Theme</button>
-                        <button onclick="setSandboxTheme('gold')" class="px-3 py-1.5 rounded-lg text-xs font-mono glass-card hover:border-brand-amber text-brand-amber">Gold Theme</button>
-                        <button onclick="resetSandbox()" class="px-3 py-1.5 rounded-lg text-xs font-mono bg-white/10 hover:bg-white/20 text-slate-200">
-                            <i class="fa-solid fa-rotate-right mr-1"></i> Reset
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Canvas Physics Container -->
-                <div class="glass-panel p-4 rounded-3xl relative overflow-hidden shadow-2xl border border-white/10">
-                    <canvas id="sandbox-canvas" class="w-full h-[450px] rounded-2xl bg-slate-950/90 cursor-crosshair"></canvas>
-                    
-                    <div class="absolute bottom-8 left-8 right-8 glass-card p-4 rounded-xl flex flex-wrap items-center justify-between gap-4 text-xs font-mono">
-                        <div class="flex items-center gap-4">
-                            <span>Particles: <strong id="particle-count-display" class="text-brand-cyan">300</strong></span>
-                            <span>Gravity: <strong id="gravity-display" class="text-brand-purple">Attract</strong></span>
-                        </div>
-                        <div class="text-slate-400 flex items-center gap-2">
-                            <i class="fa-solid fa-hand-pointer text-brand-cyan"></i>
-                            <span>Click or Drag to apply kinetic force field</span>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </section>
-
-        <!-- ================= CHAPTER 4: FUTURE VISION SPEC MATRIX (BENTO GRID) ================= -->
-        <section id="spec-matrix" class="min-h-screen py-32 px-6 relative flex items-center">
-            <div class="max-w-6xl mx-auto w-full space-y-12">
-                
-                <div class="text-center max-w-3xl mx-auto space-y-4">
-                    <div class="text-brand-cyan font-mono text-xs uppercase tracking-widest">CHAPTER 04 // BENTO MATRIX</div>
-                    <h2 class="text-4xl md:text-6xl font-display font-bold">
-                        Architectural <span class="text-gradient-cyan">Spec Matrix</span>
-                    </h2>
-                    <p class="text-slate-400 font-light">
-                        Explore Apple-inspired glassmorphism feature modules engineered for maximum throughput, sub-atomic latency, and interactive visual feedback.
-                    </p>
-                </div>
-
-                <!-- Apple-style Bento Grid Layout -->
-                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                    
-                    <!-- Card 1: Large Featured Card -->
-                    <div class="md:col-span-2 lg:col-span-2 glass-card p-8 rounded-3xl relative overflow-hidden group">
-                        <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-brand-cyan/20 rounded-full blur-3xl group-hover:bg-brand-cyan/40 transition-all"></div>
-                        <div class="text-brand-cyan font-mono text-xs uppercase mb-3">01 // LATENCY CORE</div>
-                        <h3 class="text-3xl font-display font-bold mb-3">Sub-Millisecond Neural Sync</h3>
-                        <p class="text-slate-400 text-sm leading-relaxed mb-6">
-                            Zero-copy memory pipelines enable instant data exchange between WebGL render threads and multi-threaded Web Workers.
-                        </p>
-                        
-                        <!-- Animated Visualizer Bar Mock -->
-                        <div class="flex items-end gap-1.5 h-16 pt-4 border-t border-white/10">
-                            <div class="flex-1 bg-brand-cyan/40 rounded-t h-[60%] animate-pulse"></div>
-                            <div class="flex-1 bg-brand-cyan/80 rounded-t h-[90%] animate-pulse" style="animation-delay: 0.2s"></div>
-                            <div class="flex-1 bg-brand-purple/60 rounded-t h-[40%] animate-pulse" style="animation-delay: 0.4s"></div>
-                            <div class="flex-1 bg-brand-cyan rounded-t h-[100%] animate-pulse" style="animation-delay: 0.1s"></div>
-                            <div class="flex-1 bg-brand-amber/80 rounded-t h-[75%] animate-pulse" style="animation-delay: 0.3s"></div>
-                        </div>
-                    </div>
-
-                    <!-- Card 2: Interactive Flip Stat -->
-                    <div class="glass-card p-8 rounded-3xl flex flex-col justify-between group hover:border-brand-purple">
-                        <div>
-                            <div class="text-brand-purple font-mono text-xs uppercase mb-3">02 // THROUGHPUT</div>
-                            <div class="text-5xl font-display font-black text-slate-100 group-hover:text-brand-purple transition-colors">10.4</div>
-                            <div class="text-xs font-mono text-slate-400">PetaFLOPS Compute Density</div>
-                        </div>
-                        <div class="pt-6 border-t border-white/10 text-xs text-slate-400 flex items-center justify-between">
-                            <span>Efficiency Rating</span>
-                            <span class="text-brand-purple font-mono font-bold">99.9%</span>
-                        </div>
-                    </div>
-
-                    <!-- Card 3: Interactive Audio Waveform Visualizer -->
-                    <div class="glass-card p-8 rounded-3xl flex flex-col justify-between group hover:border-brand-amber">
-                        <div>
-                            <div class="text-brand-amber font-mono text-xs uppercase mb-3">03 // HARMONIC AUDIO</div>
-                            <h4 class="font-bold text-slate-200 text-lg mb-2">Web Audio DSP Engine</h4>
-                            <p class="text-xs text-slate-400 leading-relaxed">
-                                Real-time dynamic audio frequency modulation synthesis.
-                            </p>
-                        </div>
-                        <button onclick="playAudio('synth')" class="mt-6 py-2.5 px-4 rounded-xl bg-brand-amber/10 border border-brand-amber/30 text-brand-amber text-xs font-mono hover:bg-brand-amber hover:text-black transition-all">
-                            <i class="fa-solid fa-play mr-1.5"></i> Trigger Audio Chime
-                        </button>
-                    </div>
-
-                    <!-- Card 4: Full Width / Double Span Matrix Feature -->
-                    <div class="md:col-span-3 lg:col-span-4 glass-card p-8 rounded-3xl flex flex-col md:flex-row items-center justify-between gap-8">
-                        <div class="space-y-3 max-w-xl">
-                            <div class="text-brand-cyan font-mono text-xs uppercase">04 // FULL-STACK READY</div>
-                            <h3 class="text-2xl md:text-3xl font-display font-bold">Ready to Transform into a Production SaaS Web App</h3>
-                            <p class="text-slate-400 text-sm leading-relaxed">
-                                This interactive scrollytelling foundation is completely modular. You can easily plug in authentication, database persistence, custom AI agent workflows, and hosting pipelines.
-                            </p>
-                        </div>
-                        <button onclick="toggleDeployModal(true)" class="px-8 py-4 rounded-2xl bg-gradient-to-r from-brand-cyan via-brand-purple to-brand-amber text-black font-extrabold text-sm uppercase tracking-wider hover:scale-105 transition-all shadow-xl shadow-brand-purple/20 shrink-0">
-                            Read Full Deployment Guide
-                        </button>
-                    </div>
-
-                </div>
-
-            </div>
-        </section>
-
-        <!-- ================= FOOTER / CALL TO ACTION ================= -->
-        <footer class="py-20 px-6 border-t border-white/10 relative overflow-hidden">
-            <div class="max-w-6xl mx-auto text-center space-y-8">
-                <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-brand-cyan to-brand-purple mx-auto flex items-center justify-center font-display font-black text-black text-3xl shadow-xl shadow-brand-cyan/20">
-                    A
-                </div>
-
-                <h2 class="text-4xl md:text-5xl font-display font-bold text-gradient-purple">
-                    Ready to Build Award-Winning Web Experiences?
+        <!-- CENTER INTERACTIVE PLAYGROUND CONTAINER -->
+        <main class="w-full max-w-7xl mx-auto my-auto flex flex-col items-center justify-center relative pointer-events-none">
+            
+            <!-- MODE 1: Interactive Sandbox Text & Hint Overlay -->
+            <div id="mode-synth-ui" class="mode-container text-center max-w-2xl transition-all duration-500 opacity-100 pointer-events-auto">
+                <span class="inline-block px-3 py-1 rounded-full text-[10px] font-mono tracking-widest uppercase bg-white/10 border border-white/20 mb-4 backdrop-blur-md">
+                    Generative Flow State
+                </span>
+                <h2 class="text-4xl md:text-7xl font-black tracking-tight leading-none uppercase mb-4 text-transparent bg-clip-text bg-gradient-to-r from-white via-white/90 to-white/60">
+                    TOUCH THE VOID
                 </h2>
-
-                <p class="max-w-xl mx-auto text-slate-400 text-sm font-light">
-                    Combine 3D WebGL visuals, GSAP ScrollTrigger kinetics, and state-of-the-art LLMs to craft memorable digital narratives.
+                <p class="text-sm md:text-base text-white/80 mb-6 font-light max-w-md mx-auto">
+                    Click, drag, or type on your keyboard to spawn sound waves, reactive energy nodes, and generative melodies.
                 </p>
-
-                <div class="pt-4 flex justify-center gap-4">
-                    <button onclick="toggleDeployModal(true)" class="px-8 py-3.5 rounded-xl bg-brand-cyan text-black font-bold text-xs uppercase tracking-wider hover:brightness-110 transition-all shadow-lg shadow-brand-cyan/20">
-                        Deployment Guide
+                <div class="flex flex-wrap justify-center gap-3">
+                    <button onclick="triggerExplosion()" class="glass-button px-6 py-3 rounded-2xl text-xs font-bold uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-bolt text-yellow-300"></i> Sonic Burst
                     </button>
-                    <a href="#hero" class="px-8 py-3.5 rounded-xl glass-panel hover:bg-white/10 text-slate-200 text-xs font-bold uppercase tracking-wider transition-all">
-                        Back To Top <i class="fa-solid fa-arrow-up ml-1.5"></i>
-                    </a>
+                    <button onclick="randomizeTheme()" class="glass-button px-6 py-3 rounded-2xl text-xs font-bold uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-palette text-cyan-300"></i> Shift Palette
+                    </button>
+                </div>
+            </div>
+
+            <!-- MODE 2: Kinetic Typography Interactive UI -->
+            <div id="mode-typography-ui" class="mode-container hidden text-center max-w-xl w-full pointer-events-auto">
+                <div class="glass-panel p-6 md:p-8 rounded-3xl tilt-card shadow-2xl">
+                    <h3 class="text-xs font-mono uppercase tracking-widest text-white/70 mb-2">Kinetic Physics Text</h3>
+                    <input type="text" id="typoInput" value="KINETIX" maxlength="12" 
+                        class="w-full bg-white/10 border border-white/30 rounded-xl px-4 py-3 text-center text-2xl font-black uppercase tracking-widest text-white outline-none focus:border-white focus:ring-2 focus:ring-white/50 transition-all mb-4"
+                        placeholder="Type Word..." />
+                    <p class="text-xs text-white/60 font-light">Hover or touch individual letter fragments on canvas to disintegrate & reform them with elastic spring physics.</p>
+                </div>
+            </div>
+
+            <!-- MODE 3: Sound Matrix Drum Pad Grid -->
+            <div id="mode-matrix-ui" class="mode-container hidden text-center max-w-lg w-full pointer-events-auto">
+                <div class="glass-panel p-6 rounded-3xl shadow-2xl">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-xs font-mono uppercase tracking-widest text-white/70">16-Step Modular Sound Matrix</span>
+                        <button onclick="clearMatrix()" class="text-[10px] uppercase font-bold tracking-widest text-white/60 hover:text-white">Clear Grid</button>
+                    </div>
+                    <!-- 4x4 Grid Pads -->
+                    <div id="matrixGrid" class="grid grid-cols-4 gap-3 mb-4">
+                        <!-- Generated via JS -->
+                    </div>
+                    <p class="text-xs text-white/60 font-light">Click pads to toggle rhythmic loop steps and build ambient polyrhythms.</p>
+                </div>
+            </div>
+
+            <!-- MODE 4: Gravity Particle Void -->
+            <div id="mode-gravity-ui" class="mode-container hidden text-center max-w-md w-full pointer-events-auto">
+                <div class="glass-panel p-6 rounded-3xl shadow-2xl">
+                    <h3 class="text-xs font-mono uppercase tracking-widest text-white/70 mb-2">Orbital Gravity Playground</h3>
+                    <p class="text-xs text-white/80 mb-4 font-light">Click anywhere on the screen to spawn high-mass attractor nodes that bend particle trajectories.</p>
+                    <button onclick="clearAttractors()" class="glass-button px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider w-full">
+                        <i class="fa-solid fa-trash-can mr-2"></i>Reset Gravitational Field
+                    </button>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- BOTTOM CONTROLS & SYNTHESIZER DASHBOARD PANEL -->
+        <footer class="w-full max-w-7xl mx-auto pointer-events-auto">
+            <div class="glass-panel rounded-3xl p-4 md:p-5 flex flex-col md:flex-row items-center justify-between gap-4 shadow-2xl">
+                
+                <!-- Audio Waveform Real-time Visualizer Canvas -->
+                <div class="flex items-center gap-4 w-full md:w-auto">
+                    <div class="relative w-32 h-12 rounded-xl bg-black/30 overflow-hidden border border-white/10 flex items-center justify-center">
+                        <canvas id="waveformCanvas" class="w-full h-full"></canvas>
+                    </div>
+                    <div>
+                        <div class="text-xs font-bold uppercase tracking-wider">Generative Engine</div>
+                        <div id="presetLabel" class="text-[10px] font-mono text-white/60 uppercase">Lo-Fi Dream Synth</div>
+                    </div>
                 </div>
 
-                <div class="pt-12 text-xs font-mono text-slate-500 flex flex-col sm:flex-row items-center justify-between border-t border-white/5 max-w-4xl mx-auto">
-                    <span>© 2026 AETHERIA LABS. ALL RIGHTS RESERVED.</span>
-                    <span class="mt-2 sm:mt-0">BUILT WITH THREE.JS + GSAP + TAILWIND + GEMINI API</span>
+                <!-- Live Audio Parameter Controls (Sliders) -->
+                <div class="flex flex-wrap items-center justify-center gap-4 md:gap-6 w-full md:w-auto">
+                    <!-- BPM Tempo Control -->
+                    <div class="flex flex-col gap-1 w-28">
+                        <div class="flex justify-between text-[10px] font-mono text-white/80">
+                            <span>TEMPO</span>
+                            <span id="bpmValue">110 BPM</span>
+                        </div>
+                        <input type="range" id="bpmSlider" min="60" max="180" value="110" oninput="updateBPM(this.value)">
+                    </div>
+
+                    <!-- Lowpass Filter Cutoff -->
+                    <div class="flex flex-col gap-1 w-28">
+                        <div class="flex justify-between text-[10px] font-mono text-white/80">
+                            <span>CUTOFF</span>
+                            <span id="cutoffValue">1200Hz</span>
+                        </div>
+                        <input type="range" id="cutoffSlider" min="200" max="8000" value="1200" oninput="updateFilter(this.value)">
+                    </div>
+
+                    <!-- Ambient Scale Selector -->
+                    <div class="flex flex-col gap-1">
+                        <span class="text-[10px] font-mono text-white/80 uppercase">Harmonic Scale</span>
+                        <select id="scaleSelect" onchange="changeScale(this.value)" class="bg-white/10 border border-white/20 rounded-lg px-2.5 py-1 text-xs text-white outline-none cursor-pointer hover:bg-white/20 transition-all">
+                            <option value="pentatonic" class="bg-gray-900 text-white">Pentatonic Dream</option>
+                            <option value="cyberpunk" class="bg-gray-900 text-white">Cyberpunk Minor</option>
+                            <option value="japanese" class="bg-gray-900 text-white">In Sen Japanese</option>
+                            <option value="ambient" class="bg-gray-900 text-white">Etheric Lydian</option>
+                        </select>
+                    </div>
                 </div>
+
+                <!-- Dynamic Theme Palette Swapper -->
+                <div class="flex items-center gap-2">
+                    <span class="text-[10px] font-mono uppercase text-white/60 hidden lg:inline">Theme:</span>
+                    <div class="flex items-center gap-1.5 bg-black/20 p-1.5 rounded-2xl border border-white/10">
+                        <button onclick="setTheme('cyberpunk')" title="Cyberpunk Neon" class="w-6 h-6 rounded-full bg-gradient-to-tr from-pink-500 to-cyan-400 hover:scale-110 transition-all ring-2 ring-white/20"></button>
+                        <button onclick="setTheme('acid')" title="Acid Graphic Synth" class="w-6 h-6 rounded-full bg-gradient-to-tr from-lime-400 to-purple-600 hover:scale-110 transition-all ring-2 ring-white/20"></button>
+                        <button onclick="setTheme('sunset')" title="Sunset Synthwave" class="w-6 h-6 rounded-full bg-gradient-to-tr from-amber-500 to-rose-600 hover:scale-110 transition-all ring-2 ring-white/20"></button>
+                        <button onclick="setTheme('aurora')" title="Deep Space Aurora" class="w-6 h-6 rounded-full bg-gradient-to-tr from-emerald-400 to-indigo-700 hover:scale-110 transition-all ring-2 ring-white/20"></button>
+                        <button onclick="setTheme('monochrome')" title="Monochrome Kinetic" class="w-6 h-6 rounded-full bg-gradient-to-tr from-gray-200 to-gray-800 hover:scale-110 transition-all ring-2 ring-white/20"></button>
+                    </div>
+                </div>
+
             </div>
         </footer>
 
-    </main>
-
-    <!-- ================= FULL APP DEPLOYMENT & ARCHITECTURE MODAL ================= -->
-    <div id="deploy-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl opacity-0 pointer-events-none transition-all duration-300">
-        <div class="glass-panel w-full max-w-4xl max-h-[90vh] rounded-3xl border border-white/15 p-6 md:p-8 overflow-y-auto space-y-8 relative text-slate-200">
-            
-            <!-- Close Button -->
-            <button onclick="toggleDeployModal(false)" class="absolute top-6 right-6 w-10 h-10 rounded-full glass-card flex items-center justify-center text-slate-400 hover:text-white transition-colors">
-                <i class="fa-solid fa-xmark text-lg"></i>
-            </button>
-
-            <div class="space-y-2">
-                <div class="text-brand-cyan font-mono text-xs uppercase tracking-widest">PRODUCTION ARCHITECTURE GUIDE</div>
-                <h2 class="text-3xl md:text-4xl font-display font-bold">Turning This Scrollytelling Experience into a Full Web App</h2>
-                <p class="text-slate-400 text-sm">Follow these actionable steps to turn this single-page interactive experience into a scalable, hosted production app.</p>
-            </div>
-
-            <!-- Deployment Step Timeline -->
-            <div class="space-y-6">
-                
-                <!-- Step 1 -->
-                <div class="glass-card p-5 rounded-2xl space-y-2 border-l-4 border-brand-cyan">
-                    <div class="flex items-center justify-between">
-                        <span class="font-bold text-sm text-brand-cyan">STEP 1: Free Hosting & Instant Deployment</span>
-                        <span class="text-[10px] font-mono bg-brand-cyan/20 text-brand-cyan px-2 py-0.5 rounded">Vercel / Netlify / GitHub Pages</span>
-                    </div>
-                    <p class="text-xs text-slate-300 leading-relaxed">
-                        1. Save this file as <code class="bg-black/50 px-1.5 py-0.5 rounded text-brand-cyan font-mono">index.html</code>.<br>
-                        2. Push the repository to <strong>GitHub</strong>.<br>
-                        3. Connect the repo to <strong>Vercel</strong> or <strong>Netlify</strong> for instant free global CDN hosting with automatic SSL HTTPS.
-                    </p>
-                </div>
-
-                <!-- Step 2 -->
-                <div class="glass-card p-5 rounded-2xl space-y-2 border-l-4 border-brand-purple">
-                    <div class="flex items-center justify-between">
-                        <span class="font-bold text-sm text-brand-purple">STEP 2: Protecting Gemini API Keys via Serverless Functions</span>
-                        <span class="text-[10px] font-mono bg-brand-purple/20 text-brand-purple px-2 py-0.5 rounded">Node.js / Vercel API Route</span>
-                    </div>
-                    <p class="text-xs text-slate-300 leading-relaxed">
-                        To avoid exposing your Gemini API key on the frontend, create a lightweight serverless endpoint:
-                    </p>
-                    <pre class="bg-slate-950 p-3 rounded-xl text-[11px] font-mono text-slate-300 overflow-x-auto">
-// api/gemini.js (Vercel Serverless Function)
-export default async function handler(req, res) {
-  const { prompt } = req.body;
-  const apiKey = process.env.GEMINI_API_KEY; // Stored securely in environment variables
-  
-  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-  });
-  
-  const data = await response.json();
-  res.status(200).json(data);
-}</pre>
-                </div>
-
-                <!-- Step 3 -->
-                <div class="glass-card p-5 rounded-2xl space-y-2 border-l-4 border-brand-amber">
-                    <div class="flex items-center justify-between">
-                        <span class="font-bold text-sm text-brand-amber">STEP 3: Progressive Web App (PWA) Offline Capabilities</span>
-                        <span class="text-[10px] font-mono bg-brand-amber/20 text-brand-amber px-2 py-0.5 rounded">Manifest.json + Service Worker</span>
-                    </div>
-                    <p class="text-xs text-slate-300 leading-relaxed">
-                        Add a <code class="bg-black/50 px-1.5 py-0.5 rounded text-brand-amber font-mono">manifest.json</code> and register a Service Worker so users can install this application directly onto iOS/Android home screens and desktop apps.
-                    </p>
-                </div>
-
-                <!-- Step 4 -->
-                <div class="glass-card p-5 rounded-2xl space-y-2 border-l-4 border-brand-pink">
-                    <div class="flex items-center justify-between">
-                        <span class="font-bold text-sm text-pink-400">STEP 4: Database & Auth Integration</span>
-                        <span class="text-[10px] font-mono bg-pink-500/20 text-pink-300 px-2 py-0.5 rounded">Firebase / Supabase</span>
-                    </div>
-                    <p class="text-xs text-slate-300 leading-relaxed">
-                        Plug in <strong>Supabase</strong> or <strong>Firebase Firestore</strong> to save user sessions, custom physics canvas presets, generated AI story outputs, and user analytics.
-                    </p>
-                </div>
-
-            </div>
-
-            <div class="pt-4 flex justify-end">
-                <button onclick="toggleDeployModal(false)" class="px-6 py-2.5 rounded-xl bg-brand-cyan text-black font-bold text-xs uppercase tracking-wider hover:brightness-110 transition-all">
-                    Close Guide
-                </button>
-            </div>
-
-        </div>
     </div>
 
-
-    <!-- ================= JAVASCRIPT LOGIC & ANIMATION ENGINE ================= -->
+    <!-- MAIN INTERACTIVE JAVASCRIPT LOGIC ENGINE -->
     <script>
         /* ==========================================================================
-           1. WEB AUDIO SYNTHESIZER ENGINE (Web Audio API)
+           1. COLOR THEMES & GLOBAL STATE MANAGEMENT
+           ========================================================================== */
+        const THEMES = {
+            cyberpunk: { c1: '#ff007f', c2: '#7928ca', c3: '#00dfd8', c4: '#ff4500', accent: '#00ffff' },
+            acid: { c1: '#a8ff00', c2: '#000000', c3: '#7e00ff', c4: '#00f0ff', accent: '#a8ff00' },
+            sunset: { c1: '#ff416c', c2: '#8a2387', c3: '#e94057', c4: '#f27121', accent: '#f27121' },
+            aurora: { c1: '#00c6ff', c2: '#0072ff', c3: '#11998e', c4: '#38ef7d', accent: '#38ef7d' },
+            monochrome: { c1: '#111111', c2: '#434343', c3: '#262626', c4: '#000000', accent: '#ffffff' }
+        };
+
+        let currentTheme = 'cyberpunk';
+        let currentMode = 'synth'; // 'synth', 'typography', 'matrix', 'gravity'
+
+        function setTheme(themeName) {
+            if (!THEMES[themeName]) return;
+            currentTheme = themeName;
+            const t = THEMES[themeName];
+            const root = document.documentElement;
+            root.style.setProperty('--c1', t.c1);
+            root.style.setProperty('--c2', t.c2);
+            root.style.setProperty('--c3', t.c3);
+            root.style.setProperty('--c4', t.c4);
+            root.style.setProperty('--accent', t.accent);
+            playUiSound(600, 0.05);
+        }
+
+        function randomizeTheme() {
+            const keys = Object.keys(THEMES);
+            const randomKey = keys[Math.floor(Math.random() * keys.length)];
+            setTheme(randomKey);
+        }
+
+        function switchMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-container').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-white', 'text-black');
+                btn.classList.add('text-white/80');
+            });
+
+            const activeTab = document.getElementById(`tab-${mode}`);
+            if (activeTab) {
+                activeTab.classList.add('bg-white', 'text-black');
+                activeTab.classList.remove('text-white/80');
+            }
+
+            const activeUI = document.getElementById(`mode-${mode}-ui`);
+            if (activeUI) {
+                activeUI.classList.remove('hidden');
+                activeUI.classList.add('opacity-100');
+            }
+
+            if (mode === 'typography') initTypographyParticles();
+            playUiSound(800, 0.08);
+        }
+
+        /* ==========================================================================
+           2. WEB AUDIO API - PROCEDURAL SYNTHESIZER & AMBIENT ENGINE
            ========================================================================== */
         let audioCtx = null;
-        let isAudioMuted = true;
+        let isAudioPlaying = false;
+        let masterGain = null;
+        let filterNode = null;
+        let analyser = null;
+
+        // Scales frequencies (Hz)
+        const SCALES = {
+            pentatonic: [130.81, 146.83, 164.81, 196.00, 220.00, 261.63, 293.66, 329.63, 392.00, 440.00], // C Pentatonic
+            cyberpunk: [130.81, 138.59, 164.81, 174.61, 196.00, 207.65, 246.94, 261.63], // Minor Phrygian
+            japanese: [130.81, 138.59, 174.61, 196.00, 207.65, 261.63], // In Sen
+            ambient: [146.83, 164.81, 185.00, 220.00, 246.94, 293.66, 329.63, 369.99] // D Lydian
+        };
+        let currentScale = SCALES.pentatonic;
+        let bpm = 110;
+        let matrixSteps = Array(16).fill(false);
+        let currentMatrixStep = 0;
+        let matrixInterval = null;
 
         function initAudio() {
-            if (!audioCtx) {
-                const AudioContext = window.AudioContext || window.webkitAudioContext;
-                audioCtx = new AudioContext();
-            }
+            if (audioCtx) return;
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            audioCtx = new AudioContext();
+
+            masterGain = audioCtx.createGain();
+            masterGain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+
+            filterNode = audioCtx.createBiquadFilter();
+            filterNode.type = 'lowpass';
+            filterNode.frequency.setValueAtTime(1200, audioCtx.currentTime);
+
+            analyser = audioCtx.createAnalyser();
+            analyser.fftSize = 64;
+
+            filterNode.connect(masterGain);
+            masterGain.connect(analyser);
+            analyser.connect(audioCtx.destination);
+
+            startMatrixSequencer();
+        }
+
+        function toggleAudioEngine() {
+            if (!audioCtx) initAudio();
+
             if (audioCtx.state === 'suspended') {
                 audioCtx.resume();
             }
-        }
 
-        function toggleAudio() {
-            initAudio();
-            isAudioMuted = !isAudioMuted;
-            const icon = document.getElementById('audio-icon');
-            const label = document.getElementById('audio-label');
+            isAudioPlaying = !isAudioPlaying;
+            const statusDot = document.getElementById('audioStatusDot');
+            const btnText = document.getElementById('audioBtnText');
 
-            if (isAudioMuted) {
-                icon.className = 'fa-solid fa-volume-xmark';
-                label.innerText = 'AUDIO: OFF';
+            if (isAudioPlaying) {
+                statusDot.classList.remove('bg-red-500');
+                statusDot.classList.add('bg-emerald-400');
+                btnText.innerText = "Audio Active";
+                playAmbientDrone();
             } else {
-                icon.className = 'fa-solid fa-volume-high text-brand-cyan';
-                label.innerText = 'AUDIO: ON';
-                playAudio('synth');
+                statusDot.classList.remove('bg-emerald-400');
+                statusDot.classList.add('bg-red-500');
+                btnText.innerText = "Audio Off";
+                if (masterGain) masterGain.gain.setValueAtTime(0, audioCtx.currentTime);
             }
         }
 
-        function playAudio(type) {
-            if (isAudioMuted) return;
-            initAudio();
+        function playSynthNote(freq, type = 'sine', duration = 0.8) {
+            if (!audioCtx || !isAudioPlaying) return;
 
+            const osc = audioCtx.createOscillator();
+            const noteGain = audioCtx.createGain();
+
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+            noteGain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            noteGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+
+            osc.connect(noteGain);
+            noteGain.connect(filterNode);
+
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        function playUiSound(freq, duration = 0.05) {
+            if (!audioCtx) return;
             try {
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + duration);
                 osc.connect(gain);
                 gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (e) {}
+        }
 
-                const now = audioCtx.currentTime;
+        function playAmbientDrone() {
+            if (!audioCtx || !isAudioPlaying) return;
+            const rootFreq = currentScale[0] / 2;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(rootFreq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+            osc.connect(gain);
+            gain.connect(filterNode);
+            osc.start();
+        }
 
-                if (type === 'hover') {
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(440, now);
-                    osc.frequency.exponentialRampToValueAtTime(880, now + 0.08);
-                    gain.gain.setValueAtTime(0.03, now);
-                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
-                    osc.start(now);
-                    osc.stop(now + 0.08);
-                } else if (type === 'synth') {
-                    osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(220, now);
-                    osc.frequency.exponentialRampToValueAtTime(660, now + 0.3);
-                    gain.gain.setValueAtTime(0.1, now);
-                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
-                    osc.start(now);
-                    osc.stop(now + 0.3);
-                } else if (type === 'node') {
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(523.25, now); // C5
-                    osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
-                    gain.gain.setValueAtTime(0.08, now);
-                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
-                    osc.start(now);
-                    osc.stop(now + 0.25);
-                }
-            } catch (e) {
-                console.warn('Audio synthesis error:', e);
+        function updateBPM(val) {
+            bpm = parseInt(val);
+            document.getElementById('bpmValue').innerText = `${bpm} BPM`;
+            if (matrixInterval) {
+                clearInterval(matrixInterval);
+                startMatrixSequencer();
             }
         }
 
+        function updateFilter(val) {
+            const freq = parseInt(val);
+            document.getElementById('cutoffValue').innerText = `${freq}Hz`;
+            if (filterNode && audioCtx) {
+                filterNode.frequency.setTargetAtTime(freq, audioCtx.currentTime, 0.1);
+            }
+        }
+
+        function changeScale(val) {
+            if (SCALES[val]) {
+                currentScale = SCALES[val];
+                playUiSound(523.25, 0.1);
+            }
+        }
+
+        /* Sequencer Loop for Sound Matrix */
+        function startMatrixSequencer() {
+            const intervalMs = (60 / bpm / 4) * 1000;
+            matrixInterval = setInterval(() => {
+                currentMatrixStep = (currentMatrixStep + 1) % 16;
+                updateMatrixUI();
+
+                if (matrixSteps[currentMatrixStep] && isAudioPlaying) {
+                    const noteFreq = currentScale[currentMatrixStep % currentScale.length] * 2;
+                    playSynthNote(noteFreq, 'triangle', 0.4);
+                    spawnVisualBurst(window.innerWidth / 2 + (currentMatrixStep - 8) * 30, window.innerHeight * 0.6);
+                }
+            }, intervalMs);
+        }
 
         /* ==========================================================================
-           2. THREE.JS 3D SCROLL-DRIVEN WEBGL COSMOS ORB
+           3. CANVAS PARTICLE & MOTION GRAPHICS ENGINE
            ========================================================================== */
-        let scene, camera, renderer, orbMesh, corePoints, wireframeMesh;
-        let targetOrbScale = 1;
-        let targetOrbRotationSpeed = 0.003;
+        const bgCanvas = document.getElementById('bgCanvas');
+        const bgCtx = bgCanvas.getContext('2d');
+        const fxCanvas = document.getElementById('fxCanvas');
+        const fxCtx = fxCanvas.getContext('2d');
 
-        function init3D() {
-            const container = document.getElementById('webgl-container');
-            scene = new THREE.Scene();
-
-            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.z = 7;
-
-            renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-            container.appendChild(renderer.domElement);
-
-            // Create Main Icosahedron Geometric Orb
-            const orbGeometry = new THREE.IcosahedronGeometry(2.2, 3);
-            const orbMaterial = new THREE.MeshStandardMaterial({
-                color: 0x00f3ff,
-                wireframe: true,
-                transparent: true,
-                opacity: 0.35,
-                roughness: 0.2,
-                metalness: 0.8
-            });
-            orbMesh = new THREE.Mesh(orbGeometry, orbMaterial);
-            scene.add(orbMesh);
-
-            // Outer Outer Wireframe Shell
-            const outerGeo = new THREE.IcosahedronGeometry(2.8, 1);
-            const outerMat = new THREE.MeshBasicMaterial({
-                color: 0xb026ff,
-                wireframe: true,
-                transparent: true,
-                opacity: 0.15
-            });
-            wireframeMesh = new THREE.Mesh(outerGeo, outerMat);
-            scene.add(wireframeMesh);
-
-            // Particle Starfield Background
-            const particleGeo = new THREE.BufferGeometry();
-            const particleCount = 1200;
-            const posArray = new Float32Array(particleCount * 3);
-
-            for (let i = 0; i < particleCount * 3; i++) {
-                posArray[i] = (Math.random() - 0.5) * 25;
-            }
-
-            particleGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-            const particleMat = new THREE.PointsMaterial({
-                size: 0.025,
-                color: 0x00f3ff,
-                transparent: true,
-                opacity: 0.6
-            });
-            corePoints = new THREE.Points(particleGeo, particleMat);
-            scene.add(corePoints);
-
-            // Lighting Setup
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-            scene.add(ambientLight);
-
-            const pointLight = new THREE.PointLight(0x00f3ff, 2, 50);
-            pointLight.position.set(5, 5, 5);
-            scene.add(pointLight);
-
-            const pointLight2 = new THREE.PointLight(0xb026ff, 2, 50);
-            pointLight2.position.set(-5, -5, -5);
-            scene.add(pointLight2);
-
-            // Mouse Move Parallax Tilt
-            window.addEventListener('mousemove', (e) => {
-                const mouseX = (e.clientX / window.innerWidth - 0.5) * 0.5;
-                const mouseY = (e.clientY / window.innerHeight - 0.5) * 0.5;
-
-                gsap.to(orbMesh.rotation, {
-                    x: mouseY,
-                    y: mouseX,
-                    duration: 1
-                });
-            });
-
-            window.addEventListener('resize', onWindowResize);
-            animate3D();
-        }
-
-        function animate3D() {
-            requestAnimationFrame(animate3D);
-
-            if (orbMesh) {
-                orbMesh.rotation.y += targetOrbRotationSpeed;
-                orbMesh.rotation.x += targetOrbRotationSpeed * 0.5;
-
-                // Smooth scale lerping based on scroll trigger
-                orbMesh.scale.x += (targetOrbScale - orbMesh.scale.x) * 0.05;
-                orbMesh.scale.y += (targetOrbScale - orbMesh.scale.y) * 0.05;
-                orbMesh.scale.z += (targetOrbScale - orbMesh.scale.z) * 0.05;
-            }
-
-            if (wireframeMesh) {
-                wireframeMesh.rotation.y -= targetOrbRotationSpeed * 0.7;
-            }
-
-            if (corePoints) {
-                corePoints.rotation.y += 0.0005;
-            }
-
-            renderer.render(scene, camera);
-        }
-
-        function onWindowResize() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        }
-
-        function triggerOrbPulse() {
-            playAudio('synth');
-            gsap.to(orbMesh.scale, {
-                x: 1.5,
-                y: 1.5,
-                z: 1.5,
-                duration: 0.3,
-                yoyo: true,
-                repeat: 1,
-                ease: "power2.out"
-            });
-        }
-
-
-        /* ==========================================================================
-           3. GSAP SCROLLTRIGGER SCROLLEFFECTS & PROGRESS
-           ========================================================================== */
-        function initScrollAnimations() {
-            gsap.registerPlugin(ScrollTrigger);
-
-            // Scroll Progress Bar Update
-            window.addEventListener('scroll', () => {
-                const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
-                const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-                const scrolled = (winScroll / height) * 100;
-                document.getElementById("scroll-progress").style.width = scrolled + "%";
-            });
-
-            // Chapter 1 Scroll Transformation of 3D Orb
-            ScrollTrigger.create({
-                trigger: "#genesis",
-                start: "top center",
-                end: "bottom center",
-                onEnter: () => {
-                    targetOrbScale = 1.3;
-                    targetOrbRotationSpeed = 0.008;
-                    orbMesh.material.color.setHex(0x00f3ff);
-                },
-                onLeaveBack: () => {
-                    targetOrbScale = 1.0;
-                    targetOrbRotationSpeed = 0.003;
-                    orbMesh.material.color.setHex(0x00f3ff);
-                }
-            });
-
-            // Chapter 2 AI Experience Center Transformation
-            ScrollTrigger.create({
-                trigger: "#ai-center",
-                start: "top center",
-                end: "bottom center",
-                onEnter: () => {
-                    targetOrbScale = 1.6;
-                    targetOrbRotationSpeed = 0.012;
-                    orbMesh.material.color.setHex(0xb026ff);
-                }
-            });
-
-            // Chapter 3 Physics Sandbox Transformation
-            ScrollTrigger.create({
-                trigger: "#tech-lab",
-                start: "top center",
-                end: "bottom center",
-                onEnter: () => {
-                    targetOrbScale = 0.9;
-                    targetOrbRotationSpeed = 0.005;
-                    orbMesh.material.color.setHex(0xffaa00);
-                }
-            });
-
-            // Fade-in Reveal Animations for Text Cards
-            gsap.utils.toArray('.glass-card, .glass-panel').forEach(card => {
-                gsap.from(card, {
-                    scrollTrigger: {
-                        trigger: card,
-                        start: "top 85%",
-                        toggleActions: "play none none reverse"
-                    },
-                    y: 40,
-                    opacity: 0,
-                    duration: 0.8,
-                    ease: "power3.out"
-                });
-            });
-        }
-
-
-        /* ==========================================================================
-           4. CHAPTER 1: NODE PIPELINE SIMULATOR LOGIC
-           ========================================================================== */
-        function activateNode(nodeIndex) {
-            playAudio('node');
-            const latencyEl = document.getElementById('metric-latency');
-            const tpsEl = document.getElementById('metric-tps');
-            const accEl = document.getElementById('metric-acc');
-
-            if (nodeIndex === 1) {
-                latencyEl.innerText = '4.2ms';
-                tpsEl.innerText = '2,400';
-                accEl.innerText = '99.95%';
-            } else if (nodeIndex === 2) {
-                latencyEl.innerText = '18.1ms';
-                tpsEl.innerText = '1,650';
-                accEl.innerText = '99.88%';
-            } else {
-                latencyEl.innerText = '8.9ms';
-                tpsEl.innerText = '3,100';
-                accEl.innerText = '99.99%';
-            }
-        }
-
-
-        /* ==========================================================================
-           5. CHAPTER 2: GEMINI API INTEGRATION & FALLBACK GENERATOR
-           ========================================================================== */
-        const aiPresets = {
-            quantum: "Synthesize a futuristic description of a Quantum Neural Mesh running at sub-atomic scale.",
-            audio: "Explain how harmonic neural audio synthesis can generate real-time ambient soundscapes.",
-            singularity: "Draft a brief technological foresight log for the year 2088 regarding AI singularity."
-        };
-
-        function runAiPreset(key) {
-            const prompt = aiPresets[key];
-            document.getElementById('ai-prompt-input').value = prompt;
-            executeAiQuery();
-        }
-
-        async function executeAiQuery() {
-            const promptInput = document.getElementById('ai-prompt-input');
-            const userPrompt = promptInput.value.trim();
-            const outputTerminal = document.getElementById('ai-terminal-output');
-            const customKey = document.getElementById('gemini-key-input').value.trim();
-            const btn = document.getElementById('ai-submit-btn');
-
-            if (!userPrompt) return;
-
-            playAudio('synth');
-            btn.disabled = true;
-            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Synthesizing...`;
-
-            // Append User Prompt to Terminal
-            const userLog = document.createElement('div');
-            userLog.className = 'text-brand-cyan mt-3 font-bold';
-            userLog.innerText = `> USER: ${userPrompt}`;
-            outputTerminal.appendChild(userLog);
-            outputTerminal.scrollTop = outputTerminal.scrollHeight;
-
-            const responseLog = document.createElement('div');
-            responseLog.className = 'text-slate-200 mt-2 pl-3 border-l-2 border-brand-purple leading-relaxed';
-            responseLog.innerText = "Connecting to Gemini Neural Stream...";
-            outputTerminal.appendChild(responseLog);
-
-            try {
-                // Call Gemini API via fetch
-                const apiKey = customKey || "";
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
-
-                const payload = {
-                    contents: [{ parts: [{ text: userPrompt }] }],
-                    systemInstruction: {
-                        parts: [{ text: "You are AETHERIA AI, an advanced high-tech sci-fi AI intelligence engine. Respond in a futuristic, articulate, precise, and inspiring tone in 2-3 paragraphs max." }]
-                    }
-                };
-
-                const res = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
-
-                const data = await res.json();
-                const aiText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-
-                if (aiText) {
-                    responseLog.innerText = aiText;
-                } else {
-                    throw new Error("No text candidate returned.");
-                }
-
-            } catch (err) {
-                console.warn("Gemini API call fell back to local synthesis simulator:", err);
-                // Graceful Offline Futuristic Fallback Generator
-                setTimeout(() => {
-                    responseLog.innerText = `[OFFLINE SIMULATION RESPONSE]\nSynthesizing query context: "${userPrompt}"\n\nNeural stream resolved across 1,024 tensor nodes. Quantum coherence established at 99.8% fidelity. Data vectors successfully mapped to high-dimensional space.`;
-                }, 800);
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = `<span>Synthesize</span> <i class="fa-solid fa-paper-plane"></i>`;
-                outputTerminal.scrollTop = outputTerminal.scrollHeight;
-            }
-        }
-
-
-        /* ==========================================================================
-           6. CHAPTER 3: INTERACTIVE CANVAS PHYSICS SANDBOX
-           ========================================================================== */
-        let canvas, ctx;
+        let width, height;
         let particles = [];
-        let sandboxTheme = 'cyan';
-        let isMouseDown = false;
-        let mousePos = { x: 0, y: 0 };
+        let shockwaves = [];
+        let attractors = [];
+        let typoParticles = [];
 
-        function initSandbox() {
-            canvas = document.getElementById('sandbox-canvas');
-            ctx = canvas.getContext('2d');
+        function resizeCanvas() {
+            width = bgCanvas.width = fxCanvas.width = window.innerWidth;
+            height = bgCanvas.height = fxCanvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
 
-            resizeSandboxCanvas();
-            window.addEventListener('resize', resizeSandboxCanvas);
+        // Background Dynamic Particle System
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+            reset() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5) * 1.5;
+                this.vy = (Math.random() - 0.5) * 1.5;
+                this.radius = Math.random() * 3 + 1;
+                this.alpha = Math.random() * 0.6 + 0.2;
+                this.color = '#ffffff';
+            }
+            update() {
+                // Apply Gravity Attractors
+                if (currentMode === 'gravity') {
+                    attractors.forEach(att => {
+                        const dx = att.x - this.x;
+                        const dy = att.y - this.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist < 400 && dist > 10) {
+                            const force = (att.mass / (dist * dist)) * 0.5;
+                            this.vx += (dx / dist) * force;
+                            this.vy += (dy / dist) * force;
+                        }
+                    });
+                }
 
-            // Populate Particles
-            particles = [];
-            for (let i = 0; i < 300; i++) {
-                particles.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height,
-                    vx: (Math.random() - 0.5) * 2,
-                    vy: (Math.random() - 0.5) * 2,
-                    radius: Math.random() * 2.5 + 1,
-                    baseRadius: Math.random() * 2.5 + 1
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Screen boundaries rebound
+                if (this.x < 0 || this.x > width) this.vx *= -1;
+                if (this.y < 0 || this.y > height) this.vy *= -1;
+            }
+            draw(ctx) {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha})`;
+                ctx.fill();
+            }
+        }
+
+        // Initialize Background Particle System
+        for (let i = 0; i < 120; i++) {
+            particles.push(new Particle());
+        }
+
+        /* Interactive Click Shockwave Visual Effects */
+        class Shockwave {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.radius = 5;
+                this.maxRadius = Math.random() * 150 + 100;
+                this.alpha = 1;
+                this.color = THEMES[currentTheme].accent;
+            }
+            update() {
+                this.radius += 6;
+                this.alpha -= 0.02;
+            }
+            draw(ctx) {
+                if (this.alpha <= 0) return;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.strokeStyle = this.color;
+                ctx.globalAlpha = Math.max(0, this.alpha);
+                ctx.lineWidth = 3;
+                ctx.stroke();
+                ctx.globalAlpha = 1;
+            }
+        }
+
+        function spawnVisualBurst(x, y) {
+            shockwaves.push(new Shockwave(x, y));
+            // Spawn rapid particles outward
+            for (let i = 0; i < 15; i++) {
+                const p = new Particle();
+                p.x = x;
+                p.y = y;
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 8 + 2;
+                p.vx = Math.cos(angle) * speed;
+                p.vy = Math.sin(angle) * speed;
+                particles.push(p);
+                if (particles.length > 200) particles.shift();
+            }
+        }
+
+        /* ==========================================================================
+           4. KINETIC TYPOGRAPHY PARTICLES SYSTEM
+           ========================================================================== */
+        function initTypographyParticles() {
+            typoParticles = [];
+            const text = document.getElementById('typoInput').value || 'KINETIX';
+            
+            // Render text onto hidden offscreen canvas to sample pixel coordinates
+            const offscreen = document.createElement('canvas');
+            const offCtx = offscreen.getContext('2d');
+            offscreen.width = width;
+            offscreen.height = height;
+
+            offCtx.fillStyle = '#ffffff';
+            offCtx.font = '900 ' + Math.min(width / (text.length * 0.8), 120) + 'px "Space Grotesk"';
+            offCtx.textAlign = 'center';
+            offCtx.textBaseline = 'middle';
+            offCtx.fillText(text, width / 2, height / 2);
+
+            const imgData = offCtx.getImageData(0, 0, width, height).data;
+            const step = 8; // Pixel sampling density
+
+            for (let y = 0; y < height; y += step) {
+                for (let x = 0; x < width; x += step) {
+                    const index = (y * width + x) * 4;
+                    if (imgData[index + 3] > 128) {
+                        typoParticles.push({
+                            originX: x,
+                            originY: y,
+                            x: x + (Math.random() - 0.5) * 200,
+                            y: y + (Math.random() - 0.5) * 200,
+                            vx: 0,
+                            vy: 0,
+                            size: Math.random() * 3 + 2
+                        });
+                    }
+                }
+            }
+        }
+
+        document.getElementById('typoInput').addEventListener('input', () => {
+            initTypographyParticles();
+        });
+
+        /* ==========================================================================
+           5. INTERACTIVE EVENT LISTENERS & CURSOR TRAILS
+           ========================================================================== */
+        let mouse = { x: -1000, y: -1000, down: false };
+
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+
+            if (mouse.down && currentMode === 'synth') {
+                spawnVisualBurst(mouse.x, mouse.y);
+                const freq = currentScale[Math.floor((mouse.x / width) * currentScale.length)];
+                playSynthNote(freq, 'sine', 0.2);
+            }
+        });
+
+        window.addEventListener('mousedown', (e) => {
+            mouse.down = true;
+            if (e.target.tagName === 'CANVAS' || e.target.classList.contains('gradient-bg')) {
+                spawnVisualBurst(e.clientX, e.clientY);
+
+                if (currentMode === 'synth') {
+                    const noteIndex = Math.floor((e.clientX / width) * currentScale.length);
+                    playSynthNote(currentScale[noteIndex], 'sawtooth', 0.6);
+                } else if (currentMode === 'gravity') {
+                    attractors.push({ x: e.clientX, y: e.clientY, mass: 2000 });
+                    playUiSound(300, 0.1);
+                }
+            }
+        });
+
+        window.addEventListener('mouseup', () => {
+            mouse.down = false;
+        });
+
+        // Touch support
+        window.addEventListener('touchmove', (e) => {
+            if (e.touches.length > 0) {
+                mouse.x = e.touches[0].clientX;
+                mouse.y = e.touches[0].clientY;
+                if (currentMode === 'synth') {
+                    spawnVisualBurst(mouse.x, mouse.y);
+                }
+            }
+        });
+
+        // Keyboard Synth trigger
+        window.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'INPUT') return;
+            const keys = 'qwertyuiopasdfghjklzxcvbnm';
+            const index = keys.indexOf(e.key.toLowerCase());
+            if (index !== -1) {
+                const freq = currentScale[index % currentScale.length] * (index > 12 ? 2 : 1);
+                playSynthNote(freq, 'square', 0.5);
+                spawnVisualBurst(Math.random() * width, Math.random() * height);
+            }
+        });
+
+        function triggerExplosion() {
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    spawnVisualBurst(Math.random() * width, Math.random() * height);
+                    playSynthNote(currentScale[i % currentScale.length], 'sine', 0.3);
+                }, i * 100);
+            }
+        }
+
+        function clearAttractors() {
+            attractors = [];
+            playUiSound(200, 0.1);
+        }
+
+        /* ==========================================================================
+           6. SOUND MATRIX UI BUILDER & SEQUENCER
+           ========================================================================== */
+        const matrixGrid = document.getElementById('matrixGrid');
+
+        function buildMatrixGrid() {
+            matrixGrid.innerHTML = '';
+            for (let i = 0; i < 16; i++) {
+                const pad = document.createElement('button');
+                pad.className = `h-14 rounded-xl border border-white/20 glass-button flex items-center justify-center font-mono text-xs font-bold transition-all ${matrixSteps[i] ? 'bg-white text-black shadow-lg scale-105' : ''}`;
+                pad.innerText = i + 1;
+                pad.onclick = () => {
+                    matrixSteps[i] = !matrixSteps[i];
+                    buildMatrixGrid();
+                    playUiSound(matrixSteps[i] ? 800 : 400, 0.05);
+                };
+                matrixGrid.appendChild(pad);
+            }
+        }
+
+        function updateMatrixUI() {
+            const pads = matrixGrid.children;
+            for (let i = 0; i < pads.length; i++) {
+                if (i === currentMatrixStep) {
+                    pads[i].classList.add('ring-2', 'ring-cyan-300');
+                } else {
+                    pads[i].classList.remove('ring-2', 'ring-cyan-300');
+                }
+            }
+        }
+
+        function clearMatrix() {
+            matrixSteps.fill(false);
+            buildMatrixGrid();
+        }
+
+        buildMatrixGrid();
+
+        /* ==========================================================================
+           7. MAIN RENDER & ANIMATION LOOP
+           ========================================================================== */
+        const waveformCanvas = document.getElementById('waveformCanvas');
+        const waveCtx = waveformCanvas.getContext('2d');
+
+        function animate() {
+            // Clear Canvases
+            bgCtx.clearRect(0, 0, width, height);
+            fxCtx.clearRect(0, 0, width, height);
+
+            // Update & Draw Background Particles
+            particles.forEach(p => {
+                p.update();
+                p.draw(bgCtx);
+            });
+
+            // Draw Gravity Attractors
+            if (currentMode === 'gravity') {
+                attractors.forEach(att => {
+                    bgCtx.beginPath();
+                    bgCtx.arc(att.x, att.y, 15, 0, Math.PI * 2);
+                    bgCtx.fillStyle = THEMES[currentTheme].accent;
+                    bgCtx.shadowBlur = 20;
+                    bgCtx.shadowColor = THEMES[currentTheme].accent;
+                    bgCtx.fill();
+                    bgCtx.shadowBlur = 0;
                 });
             }
 
-            // Mouse / Touch Controls
-            canvas.addEventListener('mousedown', (e) => { isMouseDown = true; updateMousePos(e); });
-            canvas.addEventListener('mouseup', () => isMouseDown = false);
-            canvas.addEventListener('mousemove', (e) => updateMousePos(e));
-
-            canvas.addEventListener('touchstart', (e) => { isMouseDown = true; updateTouchPos(e); });
-            canvas.addEventListener('touchend', () => isMouseDown = false);
-            canvas.addEventListener('touchmove', (e) => updateTouchPos(e));
-
-            animateSandbox();
-        }
-
-        function resizeSandboxCanvas() {
-            if (!canvas) return;
-            const rect = canvas.getBoundingClientRect();
-            canvas.width = rect.width;
-            canvas.height = rect.height;
-        }
-
-        function updateMousePos(e) {
-            const rect = canvas.getBoundingClientRect();
-            mousePos.x = e.clientX - rect.left;
-            mousePos.y = e.clientY - rect.top;
-        }
-
-        function updateTouchPos(e) {
-            if (e.touches.length > 0) {
-                const rect = canvas.getBoundingClientRect();
-                mousePos.x = e.touches[0].clientX - rect.left;
-                mousePos.y = e.touches[0].clientY - rect.top;
-            }
-        }
-
-        function setSandboxTheme(theme) {
-            sandboxTheme = theme;
-            playAudio('hover');
-        }
-
-        function resetSandbox() {
-            playAudio('synth');
-            initSandbox();
-        }
-
-        function animateSandbox() {
-            requestAnimationFrame(animateSandbox);
-            if (!ctx) return;
-
-            ctx.fillStyle = 'rgba(5, 6, 15, 0.2)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            let mainColor = '#00f3ff';
-            if (sandboxTheme === 'purple') mainColor = '#b026ff';
-            if (sandboxTheme === 'gold') mainColor = '#ffaa00';
-
-            particles.forEach(p => {
-                // Kinetic Attraction to Mouse
-                if (isMouseDown) {
-                    const dx = mousePos.x - p.x;
-                    const dy = mousePos.y - p.y;
+            // Update & Draw Interactive Kinetic Typography
+            if (currentMode === 'typography' && typoParticles.length > 0) {
+                typoParticles.forEach(p => {
+                    const dx = mouse.x - p.x;
+                    const dy = mouse.y - p.y;
                     const dist = Math.sqrt(dx * dx + dy * dy);
 
-                    if (dist < 180) {
-                        p.vx += (dx / dist) * 0.4;
-                        p.vy += (dy / dist) * 0.4;
+                    // Mouse repulsion force
+                    if (dist < 100) {
+                        const force = (100 - dist) / 100;
+                        p.vx -= (dx / dist) * force * 8;
+                        p.vy -= (dy / dist) * force * 8;
                     }
-                }
 
-                p.x += p.vx;
-                p.y += p.vy;
+                    // Elastic spring force towards origin
+                    const springX = (p.originX - p.x) * 0.08;
+                    const springY = (p.originY - p.y) * 0.08;
+                    p.vx += springX;
+                    p.vy += springY;
 
-                // Friction
-                p.vx *= 0.98;
-                p.vy *= 0.98;
+                    // Friction damping
+                    p.vx *= 0.85;
+                    p.vy *= 0.85;
 
-                // Boundary Bounce
-                if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
-                if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+                    p.x += p.vx;
+                    p.y += p.vy;
 
-                // Draw Particle
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-                ctx.fillStyle = mainColor;
-                ctx.fill();
-            });
-        }
-
-
-        /* ==========================================================================
-           7. MODAL UI CONTROLLER
-           ========================================================================== */
-        function toggleDeployModal(show) {
-            playAudio('synth');
-            const modal = document.getElementById('deploy-modal');
-            if (show) {
-                modal.classList.remove('opacity-0', 'pointer-events-none');
-                modal.classList.add('opacity-100');
-            } else {
-                modal.classList.add('opacity-0', 'pointer-events-none');
-                modal.classList.remove('opacity-100');
+                    fxCtx.beginPath();
+                    fxCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    fxCtx.fillStyle = '#ffffff';
+                    fxCtx.fill();
+                });
             }
+
+            // Draw Visual Shockwaves
+            shockwaves.forEach((sw, idx) => {
+                sw.update();
+                sw.draw(fxCtx);
+                if (sw.alpha <= 0) shockwaves.splice(idx, 1);
+            });
+
+            // Render Audio Waveform Equalizer
+            if (analyser && waveCtx) {
+                const bufferLength = analyser.frequencyBinCount;
+                const dataArray = new Uint8Array(bufferLength);
+                analyser.getByteFrequencyData(dataArray);
+
+                waveCtx.clearRect(0, 0, waveformCanvas.width, waveformCanvas.height);
+                const barWidth = (waveformCanvas.width / bufferLength) * 2.5;
+                let x = 0;
+
+                for (let i = 0; i < bufferLength; i++) {
+                    const barHeight = (dataArray[i] / 255) * waveformCanvas.height;
+                    waveCtx.fillStyle = '#ffffff';
+                    waveCtx.fillRect(x, waveformCanvas.height - barHeight, barWidth - 1, barHeight);
+                    x += barWidth;
+                }
+            }
+
+            requestAnimationFrame(animate);
         }
 
+        /* 3D Card Parallax Tilt Effect */
+        document.querySelectorAll('.tilt-card').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+                card.style.transform = `rotateX(${-y / 15}deg) rotateY(${x / 15}deg)`;
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = `rotateX(0deg) rotateY(0deg)`;
+            });
+        });
 
-        /* ==========================================================================
-           8. INITIALIZATION ON WINDOW LOAD
-           ========================================================================== */
+        // Initialize App on Window Load
         window.onload = function() {
-            init3D();
-            initScrollAnimations();
-            initSandbox();
+            animate();
         };
     </script>
 </body>
